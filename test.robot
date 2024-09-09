@@ -1,27 +1,22 @@
-*** Settings ***
-Suite Setup                   Setup
-Suite Teardown                Teardown
-Test Setup                    Reset Emulation
-Test Teardown                 Test Teardown
-Resource                      ${RENODEKEYWORDS}
-
 *** Variables ***
-${SCRIPT}                     ${CURDIR}/test.resc
-${UART}                       sysbus.uart
-
+${SCRIPT_PATH}                      ${CURDIR}/test.resc
 
 *** Keywords ***
-Load Script
-    Execute Script            ${SCRIPT}
-    Create Terminal Tester    ${UART}
-
+Memory Should Be Equal To
+    [Arguments]                     ${address}  ${value}
+    ${res}=                         Execute Command  sysbus ReadDoubleWord ${address}
+    Should Be Equal As Numbers      ${res}  ${value}
 
 *** Test Cases ***
-Should Run Test Case
-    Load Script
+Should Perform Memory-To-Memory Transfer
+    Execute Script                  ${SCRIPT_PATH}
     Start Emulation
-    Wait For Prompt On Uart     uart:~$
-    Write Line To Uart
-    Wait For Prompt On Uart     uart:~$
-    Write Line To Uart          demo ping
-    Wait For Line On Uart       pong
+
+    # Initialize memory
+    Execute Command                 sysbus WriteDoubleWord 0x20001230 0x00000000
+
+    # Signal dbg_test peripheral to begin the test
+    Execute Command                 sysbus.dbg_test OnGPIO 1 True
+
+    # Verify memory
+    Memory Should Be Equal To       0x20001230  0x0b1e55ed

@@ -1,20 +1,8 @@
-# This is a sample RESC script.
-# Please change this file and test.robot to include all necessary steps to reproduce your issue.
-# Make this repository as self contained as possible.
-#
-
-$name?="Mi-V"
-
 using sysbus
-mach create $name
-machine LoadPlatformDescription @platforms/boards/miv-board.repl
+mach create "dbg_test"
 
-$bin?=@https://dl.antmicro.com/projects/renode/shell-demo-miv.elf-s_803248-ea4ddb074325b2cc1aae56800d099c7cf56e592a
+machine LoadPlatformDescription $ORIGIN/dbg_test.repl
 
-showAnalyzer uart
-
-macro reset
-"""
-    sysbus LoadELF $bin
-"""
-runMacro $reset
+sysbus LogPeripheralAccess dbg_test true
+sysbus LogPeripheralAccess memory true
+sysbus.dbg_test SystemCExecutablePath $ORIGIN/dbg_exe
