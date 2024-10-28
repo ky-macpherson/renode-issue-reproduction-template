@@ -5,3 +5,4 @@ dbg_test: SystemC.SystemCPeripheral @ sysbus <0x9000000, +0xffffff>
     address: "127.0.0.1"
     port: 4242
     timeSyncPeriodUS: 5000
+    disableTimeoutCheck: true
